@@ -46,6 +46,9 @@ jobs:
           TF_VAR_new_workspace_name: ${{ vars.NEW_WORKSPACE_NAME }}
           TF_VAR_new_workspace_deployment_name: ${{ vars.NEW_WORKSPACE_DEPLOYMENT_NAME }}
           TF_VAR_new_workspace_root_bucket: ${{ vars.NEW_WORKSPACE_ROOT_BUCKET }}
+          TF_VAR_new_workspace_cross_account_role_name: ${{ vars.NEW_WORKSPACE_CROSS_ACCOUNT_ROLE_NAME }}
+          TF_VAR_new_workspace_aws_region: ${{ vars.NEW_WORKSPACE_AWS_REGION }}
+          TF_VAR_new_workspace_pricing_tier: ${{ vars.NEW_WORKSPACE_PRICING_TIER }}
         run: terraform plan -input=false -out=tfplan
 
       - name: Terraform apply (the plan just produced, nothing else)
