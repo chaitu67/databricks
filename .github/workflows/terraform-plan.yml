@@ -1,0 +1,70 @@
+# Read-only: fmt check + validate + plan on every PR touching infrastructure/.
+# Never runs apply. Posts the plan output as a PR comment so reviewers see
+# exactly what would change. Both AWS and Databricks auth are OIDC/workload
+# identity federation -- no long-lived key or secret anywhere in this workflow.
+# See the 04-github-cicd skill group (accelerator/.claude/skills/04-github-cicd).
+name: Terraform Plan
+
+on:
+  pull_request:
+    paths:
+      - "infrastructure/**"
+
+permissions:
+  id-token: write   # required for AWS OIDC + Databricks workload identity federation
+  contents: read
+  pull-requests: write # required to post the plan as a PR comment
+
+defaults:
+  run:
+    working-directory: infrastructure
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform fmt (check only)
+        run: terraform fmt -check -recursive
+
+      - name: Terraform init
+        run: terraform init -input=false
+
+      - name: Terraform validate
+        run: terraform validate
+
+      - name: Terraform plan
+        id: plan
+        env:
+          TF_VAR_databricks_host: ${{ vars.DATABRICKS_HOST }}
+          TF_VAR_databricks_auth_type: github-oidc
+          TF_VAR_databricks_client_id: ${{ vars.DATABRICKS_CLIENT_ID }}
+        run: terraform plan -input=false -no-color
+        continue-on-error: true
+
+      - name: Post plan output as PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const output = `#### Terraform Plan
+            \`\`\`
+            ${{ steps.plan.outputs.stdout }}
+            \`\`\``;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output,
+            });
+
+      - name: Fail if plan errored
+        if: steps.plan.outcome == 'failure'
+        run: exit 1

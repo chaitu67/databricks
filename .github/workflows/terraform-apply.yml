@@ -1,0 +1,48 @@
+# Applies infrastructure/ on merge to main. Gated on the "production" GitHub
+# Environment -- if it has required reviewers configured (Settings >
+# Environments in this repo), the job pauses for manual approval before
+# running. Without that Environment protection set up, this runs unattended
+# on every merge -- see 4.4-create-workflows/SKILL.md before relying on this.
+# Always plans to a saved file first, then applies exactly that saved plan.
+name: Terraform Apply
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "infrastructure/**"
+
+permissions:
+  id-token: write   # required for AWS OIDC + Databricks workload identity federation
+  contents: read
+
+defaults:
+  run:
+    working-directory: infrastructure
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init
+        run: terraform init -input=false
+
+      - name: Terraform plan
+        env:
+          TF_VAR_databricks_host: ${{ vars.DATABRICKS_HOST }}
+          TF_VAR_databricks_auth_type: github-oidc
+          TF_VAR_databricks_client_id: ${{ vars.DATABRICKS_CLIENT_ID }}
+        run: terraform plan -input=false -out=tfplan
+
+      - name: Terraform apply (the plan just produced, nothing else)
+        run: terraform apply -input=false -auto-approve tfplan
