@@ -40,3 +40,17 @@ variable "databricks_client_id" {
   type        = string
   default     = null
 }
+
+variable "workspaces" {
+  description = "Map of Databricks workspaces to create, keyed by a short slug (used to default deployment_name/cross_account_role_name and as the module instance key). Values come from the committed workspaces.auto.tfvars -- add an entry there to provision a new workspace; no CI/workflow changes needed."
+  type = map(object({
+    display_name              = string
+    deployment_name           = optional(string)
+    aws_region                = optional(string)
+    root_bucket               = string
+    root_bucket_force_destroy = optional(bool, false)
+    cross_account_role_name   = optional(string)
+    pricing_tier              = optional(string, "PREMIUM")
+  }))
+  default = {}
+}
