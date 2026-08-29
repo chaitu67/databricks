@@ -1,0 +1,7 @@
+# Checkov config file -- primarily for suppressing accepted-risk findings by
+# check ID, with a comment explaining why, rather than editing security-scan.yml
+# to weaken the scan itself. Applies to both the report and gate steps.
+# https://www.checkov.io/2.Concepts/Suppressions.html
+#
+# skip-check:
+#   - CKV_AWS_999  # example -- explain why this is an accepted risk here
