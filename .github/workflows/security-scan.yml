@@ -1,0 +1,79 @@
+# Generic security scan -- runs on EVERY pull request, no path filter, regardless
+# of what changed or which repo this is scaffolded into. Unlike terraform-plan.yml
+# (scoped to infrastructure/**, Terraform-specific), this has no dependency on any
+# other CI/CD setup in this repo -- it works standalone from day one.
+#
+# Scans for (in one pass, via Trivy): known dependency vulnerabilities, IaC
+# misconfiguration (public S3 buckets, wildcard IAM policies, unencrypted
+# resources, etc. -- if the repo has Terraform/CloudFormation/K8s manifests),
+# and hardcoded secrets. Always posts a full report as a PR comment; only fails
+# the check on CRITICAL/HIGH severity findings (see the second scan step below)
+# -- lower severities are visible for awareness but don't block.
+#
+# False positives / accepted risks: add a rule to .trivyignore at the repo root
+# (created empty alongside this workflow) rather than editing this file.
+name: Security Scan
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write # required to post the scan report as a PR comment
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Trivy scan (full report, all severities)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scanners: vuln,secret,misconfig
+          format: table
+          output: trivy-report.txt
+          severity: CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN
+          exit-code: 0
+
+      - name: Post scan report as PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            // Read the report directly from the file Trivy wrote, rather than
+            // passing it through any GitHub Actions expression/env var -- avoids
+            // the class of bug hit twice already in this project, where scanner/
+            // plan output containing literal ${...} sequences (e.g. an IAM policy
+            // condition, or a flagged env-var reference) breaks a JS template
+            // literal if interpolated into the workflow YAML directly.
+            let report = fs.readFileSync('trivy-report.txt', 'utf8');
+            const MAX_LEN = 60000; // stay under GitHub's ~65536-byte comment limit
+            if (report.length > MAX_LEN) {
+              report = report.slice(0, MAX_LEN) + '\n... (truncated -- see the full report in this run\'s logs)';
+            }
+            const output = `#### Security Scan (Trivy)\n\`\`\`\n${report}\n\`\`\``;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output,
+            });
+
+      - name: Trivy scan (gate on CRITICAL/HIGH only)
+        id: gate
+        uses: aquasecurity/trivy-action@0.28.0
+        continue-on-error: true
+        with:
+          scan-type: fs
+          scanners: vuln,secret,misconfig
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: 1
+
+      - name: Fail if CRITICAL/HIGH findings exist
+        if: steps.gate.outcome == 'failure'
+        run: |
+          echo "CRITICAL/HIGH severity findings detected -- see the Security Scan PR comment above (or this run's logs) for details." >&2
+          exit 1
