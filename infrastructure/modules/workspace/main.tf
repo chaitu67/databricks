@@ -95,3 +95,21 @@ resource "databricks_mws_workspaces" "this" {
 
   depends_on = [aws_s3_bucket_policy.root_storage, aws_iam_role_policy.cross_account]
 }
+
+# Account-admin status alone does not grant workspace access -- each principal must be
+# explicitly assigned per workspace. Declared here (instead of a manual
+# `databricks account workspace-assignment update` step) so workspace access is
+# version-controlled and PR-reviewable, same as everything else this module creates.
+data "databricks_user" "admins" {
+  for_each  = toset(var.admin_emails)
+  provider  = databricks.mws
+  user_name = each.value
+}
+
+resource "databricks_mws_permission_assignment" "admins" {
+  for_each     = toset(var.admin_emails)
+  provider     = databricks.mws
+  workspace_id = databricks_mws_workspaces.this.workspace_id
+  principal_id = data.databricks_user.admins[each.key].id
+  permissions  = ["ADMIN"]
+}

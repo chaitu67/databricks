@@ -11,5 +11,6 @@ workspaces = {
     root_bucket_force_destroy = false
     cross_account_role_name   = "databricks-workshop-workspace-crossaccount"
     pricing_tier              = "PREMIUM"
+    admin_emails              = ["datagaiinc@gmail.com"]
   }
 }

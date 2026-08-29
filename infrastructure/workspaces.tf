@@ -17,4 +17,5 @@ module "workspace" {
   root_bucket_force_destroy = each.value.root_bucket_force_destroy
   cross_account_role_name   = coalesce(each.value.cross_account_role_name, "databricks-${each.key}-crossaccount")
   pricing_tier              = each.value.pricing_tier
+  admin_emails              = each.value.admin_emails
 }
