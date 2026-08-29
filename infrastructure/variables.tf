@@ -128,3 +128,23 @@ variable "catalog_grants" {
   }))
   default = {}
 }
+
+variable "volumes" {
+  description = "Map of Unity Catalog volumes to create, keyed by an arbitrary slug. Values come from the committed volumes.auto.tfvars -- add an entry there to provision a new volume; no CI/workflow changes needed. `catalog` must reference an existing key in var.catalogs (5.2-create-unity-catalog); `schema` must already exist in that catalog's schemas list. `name` defaults to the map key when omitted -- set it explicitly only if the real Unity Catalog volume name should differ from the slug. `volume_type` is \"MANAGED\" (default -- no separate storage needed) or \"EXTERNAL\" (storage_location defaults to a subpath under the owning catalog's own external location when not set explicitly)."
+  type = map(object({
+    catalog          = string
+    schema           = string
+    name             = optional(string)
+    volume_type      = optional(string, "MANAGED")
+    storage_location = optional(string)
+    comment          = optional(string)
+  }))
+  default = {}
+
+  validation {
+    condition = alltrue([
+      for k, v in var.volumes : contains(["MANAGED", "EXTERNAL"], v.volume_type)
+    ])
+    error_message = "Each volume's volume_type must be \"MANAGED\" or \"EXTERNAL\"."
+  }
+}
