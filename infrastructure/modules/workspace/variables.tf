@@ -39,3 +39,9 @@ variable "pricing_tier" {
   type        = string
   default     = "PREMIUM"
 }
+
+variable "admin_emails" {
+  description = "Account user emails to assign ADMIN access to this workspace. Account-admin status alone does NOT grant workspace access -- a principal must be explicitly assigned per workspace, which is what this manages (declaratively, instead of a manual `databricks account workspace-assignment update` step)."
+  type        = list(string)
+  default     = []
+}

@@ -51,6 +51,7 @@ variable "workspaces" {
     root_bucket_force_destroy = optional(bool, false)
     cross_account_role_name   = optional(string)
     pricing_tier              = optional(string, "PREMIUM")
+    admin_emails              = optional(list(string), [])
   }))
   default = {}
 }
