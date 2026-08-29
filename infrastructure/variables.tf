@@ -130,7 +130,7 @@ variable "catalog_grants" {
 }
 
 variable "volumes" {
-  description = "Map of Unity Catalog volumes to create, keyed by an arbitrary slug. Values come from the committed volumes.auto.tfvars -- add an entry there to provision a new volume; no CI/workflow changes needed. `catalog` must reference an existing key in var.catalogs (5.2-create-unity-catalog); `schema` must already exist in that catalog's schemas list. `name` defaults to the map key when omitted -- set it explicitly only if the real Unity Catalog volume name should differ from the slug. `volume_type` is \"MANAGED\" (default -- no separate storage needed) or \"EXTERNAL\" (storage_location defaults to a subpath under the owning catalog's own external location when not set explicitly)."
+  description = "Map of Unity Catalog volumes to create, keyed by an arbitrary slug. Values come from the committed volumes.auto.tfvars -- add an entry there to provision a new volume; no CI/workflow changes needed. `catalog` must reference an existing key in var.catalogs (5.2-create-unity-catalog); `schema` must already exist in that catalog's schemas list. `name` defaults to the map key when omitted -- set it explicitly only if the real Unity Catalog volume name should differ from the slug. `volume_type` is \"MANAGED\" (default -- no separate storage needed) or \"EXTERNAL\" (storage_location defaults to a subpath under the owning catalog's own external location when not set explicitly). See docs/naming-conventions.md: the effective name (`name`, or the map key when `name` is omitted) must match `<purpose>[_<subtype>]` -- lowercase, starting with a letter, underscore-separated -- enforced for every volume regardless of environment, since (unlike catalogs/groups) volumes have no separate environment field of their own; the owning catalog.schema already carries that context."
   type = map(object({
     catalog          = string
     schema           = string
@@ -146,5 +146,15 @@ variable "volumes" {
       for k, v in var.volumes : contains(["MANAGED", "EXTERNAL"], v.volume_type)
     ])
     error_message = "Each volume's volume_type must be \"MANAGED\" or \"EXTERNAL\"."
+  }
+
+  validation {
+    # Unlike catalogs/groups, this is enforced unconditionally -- volumes have no environment
+    # field of their own (the owning catalog.schema already carries env/domain context), so
+    # there's no "dev is unrestricted" carve-out here. See docs/naming-conventions.md.
+    condition = alltrue([
+      for k, v in var.volumes : can(regex("^[a-z][a-z0-9]*(_[a-z][a-z0-9]*)*$", coalesce(v.name, k)))
+    ])
+    error_message = "Each volume's effective name (`name`, or the map key when `name` is omitted) must match <purpose>[_<subtype>] -- lowercase, starting with a letter, underscore-separated (e.g. raw_files, model_artifacts) -- see docs/naming-conventions.md."
   }
 }

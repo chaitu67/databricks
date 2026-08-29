@@ -74,9 +74,34 @@ Regex (prod only, `acl`/`sp` types): `^(acl|sp)_(dev|stg|prod)_[a-z][a-z0-9]*(_[
 Examples: `acl_prod_analytics_reader`, `acl_prod_sales_events_writer`, `sp_prod_analytics_writer`
 (mechanism not yet built), `acl_dev_whatever_owner` (dev, not enforced).
 
+## Volume names
+
+```
+<purpose>[_<subtype>]
+```
+
+- No `env`/`domain` prefix, unlike catalogs/groups -- a volume already lives inside a specific
+  `catalog.schema` (via `5.4-create-volume`), which already carries that context. Repeating it in
+  the volume name itself would be redundant, not informative.
+- `purpose` -- what the volume is for (lowercase, starts with a letter): `raw_files`,
+  `model_artifacts`, `landing_zone`.
+- `subtype` (optional, repeatable) -- further scoping: `raw_files_partner_a`.
+
+Regex (enforced unconditionally -- no dev/stg/prod carve-out, since volumes have no `environment`
+field of their own): `^[a-z][a-z0-9]*(_[a-z][a-z0-9]*)*$`
+
+Examples: `raw_files`, `model_artifacts`, `analytics_export_v2`.
+
+**Same underscore rule as catalogs**: Unity Catalog volume names are SQL identifiers too, so
+hyphens would force backtick-quoting every reference.
+
+This applies to the *effective* name -- the `name` field in a `volumes.auto.tfvars` entry, or the
+map key itself when `name` is omitted (see `5.4-create-volume`'s `SKILL.md`).
+
 ## What this project actually enforces today
 
-Only `catalogs` (via `5.2-create-unity-catalog`) and `groups` with `type = acl` (via
-`5.3-manage-catalog-access`) have real Terraform `validation` blocks. `sp` and `abac` are
-reserved vocabulary for when those capabilities get built -- referencing them here now avoids a
-naming-scheme rewrite later, without pretending either capability exists yet.
+`catalogs` (via `5.2-create-unity-catalog`), `groups` with `type = acl` (via
+`5.3-manage-catalog-access`), and `volumes` (via `5.4-create-volume`) all have real Terraform
+`validation` blocks. `sp` and `abac` are reserved vocabulary for when those capabilities get
+built -- referencing them here now avoids a naming-scheme rewrite later, without pretending either
+capability exists yet.
