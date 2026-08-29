@@ -3,5 +3,13 @@
 # to weaken the scan itself. Applies to both the report and gate steps.
 # https://www.checkov.io/2.Concepts/Suppressions.html
 #
-# skip-check:
-#   - CKV_AWS_999  # example -- explain why this is an accepted risk here
+# IMPORTANT: this file must always parse to a real YAML mapping, never end up
+# empty/comments-only -- Checkov's config loader hard-errors (exit code 2, a
+# crash, not a normal "findings failed" exit) if this file exists but
+# yaml.load() returns None instead of a dict. Confirmed live: the very first
+# CI run of this workflow crashed on exactly this before `skip-check: ""` was
+# added as a real, harmless (skips nothing) baseline key.
+skip-check: ""
+# To add real entries instead of the harmless default above, use either
+# comma-string or list syntax (both confirmed to work), for example:
+# skip-check: "CKV_AWS_999,CKV_AWS_998"  # example -- explain why here
