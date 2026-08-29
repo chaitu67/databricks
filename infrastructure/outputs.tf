@@ -31,3 +31,13 @@ output "group_names" {
   description = "Map of group slug -> group display name, for every entry in var.groups."
   value       = { for k, m in module.group : k => m.group_name }
 }
+
+output "volume_full_names" {
+  description = "Map of volume slug -> catalog.schema.volume full name, for every entry in var.volumes."
+  value       = { for k, m in module.volume : k => m.volume_full_name }
+}
+
+output "volume_storage_locations" {
+  description = "Map of volume slug -> resolved storage location (S3 URL for EXTERNAL, Databricks-managed path for MANAGED), for every entry in var.volumes."
+  value       = { for k, m in module.volume : k => m.storage_location }
+}
