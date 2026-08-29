@@ -55,3 +55,15 @@ variable "workspaces" {
   }))
   default = {}
 }
+
+variable "catalogs" {
+  description = "Map of Unity Catalog catalogs to create, keyed by a short slug (the catalog name and the module instance key). Values come from the committed catalogs.auto.tfvars -- add an entry there to provision a new catalog; no CI/workflow changes needed. Each catalog gets its own dedicated S3 bucket + IAM role + storage credential + external location."
+  type = map(object({
+    comment                      = optional(string)
+    bucket_name                  = string
+    bucket_force_destroy         = optional(bool, false)
+    storage_credential_role_name = optional(string)
+    schemas                      = optional(list(string), [])
+  }))
+  default = {}
+}
