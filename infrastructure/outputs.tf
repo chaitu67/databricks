@@ -1,4 +1,6 @@
 # Outputs for downstream skills/consumers go here as resources are added.
+# (Comment-only touch to trigger terraform-plan.yml on this PR -- verifies the
+# tightened OIDC trust policy's pull_request subject for real before merging.)
 
 output "workspace_urls" {
   description = "Map of workspace slug -> workspace URL, for every entry in var.workspaces."

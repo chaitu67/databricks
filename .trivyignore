@@ -1,5 +1,0 @@
-# Trivy findings to suppress, one per line -- either a CVE ID (e.g. CVE-2023-12345)
-# or a specific rule ID (e.g. AVD-AWS-0001 for an IaC misconfiguration check).
-# Add an entry here (with a comment explaining why it's an accepted risk, not a
-# real fix) rather than editing security-scan.yml to weaken the scan itself.
-# https://aquasecurity.github.io/trivy/latest/docs/configuration/filtering/#trivyignore
