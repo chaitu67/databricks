@@ -26,3 +26,8 @@ output "catalog_schema_full_names" {
   description = "Map of catalog slug -> list of catalog.schema full names, for every entry in var.catalogs."
   value       = { for k, m in module.catalog : k => m.schema_full_names }
 }
+
+output "group_names" {
+  description = "Map of group slug -> group display name, for every entry in var.groups."
+  value       = { for k, m in module.group : k => m.group_name }
+}
