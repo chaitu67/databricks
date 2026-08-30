@@ -87,6 +87,59 @@ variable "catalogs" {
   }
 }
 
+variable "pattern01_units" {
+  description = "Map of \"01-pattern\" organization units, keyed by unit_key -- one Databricks workspace per business unit/department x environment tier, per that pattern (see docs/organization/patterns.md and docs/organization/01-pattern/pattern-definition.md). Values come from the committed pattern01_units.auto.tfvars. Editing an EXISTING unit's data (adding a line-of-business catalog, changing a bucket name, updating role membership, or setting workspace.host once RUNNING) is a pure tfvars edit -- no code change. A BRAND NEW unit_key additionally needs a one-time scaffold (infrastructure/scripts/add-pattern01-unit.sh <unit_key>) that wires its module block (pattern01_units_<unit_key>.tf) -- Terraform provider configurations can't be generated dynamically via for_each/count, so that one step is a real, minimal code addition, not a tfvars-only one, unlike every other resource in this project (this unit's own catalog-scoped provider is self-contained inside infrastructure/modules/organization/01-pattern itself, not a separate root-level provider file -- see that module's providers.tf). See infrastructure/modules/organization/01-pattern for the full schema, including var.extra_grants for cross-unit access. A different pattern gets its own sibling variable (pattern02_units, ...) and its own infrastructure/modules/organization/02-pattern/ folder, scaffolded by 6.2.1-build-pattern-module -- this variable is \"01-pattern\"'s, not shared. (Terraform identifiers can't start with a digit or contain a hyphen, hence \"pattern01\" here rather than the literal \"01-pattern\" folder name.)"
+  type = map(object({
+    workspace = object({
+      display_name              = string
+      deployment_name           = optional(string)
+      aws_region                = string
+      root_bucket               = string
+      root_bucket_force_destroy = optional(bool, false)
+      cross_account_role_name   = optional(string)
+      pricing_tier              = optional(string, "PREMIUM")
+      admin_emails              = optional(list(string), [])
+      host                      = optional(string)
+      profile                   = optional(string)
+    })
+    catalogs = optional(map(object({
+      environment                  = optional(string, "dev")
+      comment                      = optional(string)
+      bucket_name                  = string
+      bucket_force_destroy         = optional(bool, false)
+      storage_credential_role_name = optional(string)
+      schemas                      = optional(list(string), [])
+      reader_emails                = optional(list(string), [])
+      writer_emails                = optional(list(string), [])
+      owner_emails                 = optional(list(string), [])
+    })), {})
+  }))
+  default = {}
+
+  validation {
+    condition = alltrue(flatten([
+      for uk, u in var.pattern01_units : [
+        for ck, c in u.catalogs : contains(["dev", "stg", "prod"], c.environment)
+      ]
+    ]))
+    error_message = "Each \"01-pattern\" unit catalog's environment must be \"dev\", \"stg\", or \"prod\"."
+  }
+
+  validation {
+    # Naming pattern only enforced for prod, same carve-out as the independent
+    # path's var.catalogs -- see docs/naming-conventions.md.
+    condition = alltrue(flatten([
+      for uk, u in var.pattern01_units : [
+        for ck, c in u.catalogs : (
+          c.environment != "prod" ||
+          can(regex("^(dev|stg|prod)_[a-z][a-z0-9]*(_[a-z][a-z0-9]*)*$", ck))
+        )
+      ]
+    ]))
+    error_message = "\"01-pattern\" unit catalog keys with environment = \"prod\" must match <env>_<domain>[_<subdomain>] (e.g. prod_retail_brokerage) -- see docs/naming-conventions.md."
+  }
+}
+
 variable "groups" {
   description = "Map of account-level Databricks groups to create, keyed by a short slug (used as the group's display name and module instance key). Values come from the committed groups.auto.tfvars -- add an entry there to provision a new group; no CI/workflow changes needed. Groups are account-level (shared across every workspace attached to this account), matching how Unity Catalog grants work. See docs/naming-conventions.md: for environment = \"prod\" entries, the map key must match acl_<env>_<domain>[_<subdomain>]_<role> (e.g. acl_prod_analytics_reader) -- dev/stg keys are unrestricted. Only the \"acl\" group type (object-level catalog/schema grants, what this skill builds) is validated today; \"sp\"/\"abac\" are reserved vocabulary for capabilities not yet implemented."
   type = map(object({

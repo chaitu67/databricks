@@ -1,0 +1,63 @@
+organization:
+  name: "northwind-financial"  # generic placeholder name, not modeling a real company
+  cloud: aws
+  regions: [us-east-1, us-west-2]
+  environment_tiers: [dev, stg, prod]
+  environment_regions:
+    dev: us-east-1
+    stg: us-east-1
+    prod: us-east-1
+  dr:
+    region: us-west-2
+    tiers: [prod]  # workspace-only standby; catalogs/data replication are a separate concern,
+                    # not built by this pipeline -- see 01-pattern/pattern-definition.md
+
+business_units:
+  - key: retail
+    name: "Retail"
+    environments: [dev, prod]
+    lines_of_business:
+      - key: brokerage
+        name: "Brokerage"
+      - key: advisory
+        name: "Advisory"
+    sensitivity_notes: []
+
+  - key: wealth
+    name: "Wealth"
+    environments: [dev, stg, prod]
+    lines_of_business:
+      - key: private_banking
+        name: "Private Banking"
+      - key: trust_services
+        name: "Trust Services"
+    sensitivity_notes: []
+
+  - key: institutional
+    name: "Institutional"
+    environments: [dev, stg, prod]
+    lines_of_business:
+      - key: asset_management
+        name: "Asset Management"
+      - key: pension_services
+        name: "Pension Services"
+    sensitivity_notes: []
+
+shared_departments:
+  - key: platform_it
+    name: "Platform IT"
+    environments: [dev, stg, prod]
+    scope: [retail, wealth, institutional]
+    sensitivity_notes: []
+
+  - key: risk_compliance
+    name: "Risk & Compliance"
+    environments: [prod]
+    scope: [retail, wealth, institutional]
+    sensitivity_notes: []
+
+  - key: finance_ops
+    name: "Finance Ops"
+    environments: [dev, prod]
+    scope: [retail, wealth, institutional]
+    sensitivity_notes: []
