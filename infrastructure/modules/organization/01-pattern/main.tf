@@ -55,12 +55,12 @@ module "catalog" {
   }
 
   databricks_account_id        = var.databricks_account_id
-  name                          = each.key
-  comment                       = each.value.comment
-  bucket_name                    = each.value.bucket_name
-  bucket_force_destroy           = each.value.bucket_force_destroy
-  storage_credential_role_name  = coalesce(each.value.storage_credential_role_name, "databricks-uc-${each.key}-storage")
-  schemas                        = each.value.schemas
+  name                         = each.key
+  comment                      = each.value.comment
+  bucket_name                  = each.value.bucket_name
+  bucket_force_destroy         = each.value.bucket_force_destroy
+  storage_credential_role_name = coalesce(each.value.storage_credential_role_name, "databricks-uc-${each.key}-storage")
+  schemas                      = each.value.schemas
 
   depends_on = [module.workspace]
 }
