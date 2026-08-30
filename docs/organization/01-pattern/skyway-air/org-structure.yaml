@@ -1,0 +1,34 @@
+organization:
+  name: "skyway-air (shape inspired by a public airline reference, not modeling a real company)"
+  cloud: aws
+  regions: [us-east-1, us-west-2]
+  environment_tiers: [dev, stg, prod]
+  environment_regions:
+    dev: us-east-1
+    stg: us-east-1
+    prod: us-east-1
+  dr:
+    region: us-west-2
+    tiers: [prod]  # workspace-only standby; catalogs/data replication are a separate concern,
+                    # not built by this pipeline -- see 01-pattern/pattern-definition.md
+
+business_units:
+  - key: flightops
+    name: "Flight Operations"
+    environments: [dev, stg, prod]
+    lines_of_business:
+      - key: flight_ops
+        name: "Flight Operations"
+      - key: crew_ops
+        name: "Crew Ops"
+    sensitivity_notes: []
+
+  - key: commercial
+    name: "Commercial"
+    environments: [dev, stg, prod]
+    sensitivity_notes: []
+
+  - key: maintenance
+    name: "Maintenance"
+    environments: [dev, stg, prod]
+    sensitivity_notes: []

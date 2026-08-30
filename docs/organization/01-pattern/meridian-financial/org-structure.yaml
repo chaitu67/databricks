@@ -1,0 +1,85 @@
+organization:
+  name: "meridian-financial"  # placeholder label; shape inspired by a public reference for a
+                               # large mutual-fund-owned financial services company, not modeling
+                               # a real company -- see 6.1-discover-org-structure Phase 1 item 1
+  cloud: aws
+  regions: [us-east-1]
+  environment_tiers: [dev, stg, prod]
+
+business_units:
+  - key: retail
+    name: "Retail Investor Group"
+    environments: [dev, stg, prod]
+    lines_of_business:
+      - key: brokerage
+        name: "Direct Brokerage Services"
+      - key: advisory
+        name: "Advisory Services (hybrid + digital advice)"
+    sensitivity_notes:
+      - "Client accounts include PII (SSNs, bank account details) requiring masking for general analysts"
+
+  - key: fas
+    name: "Financial Advisor Services"
+    environments: [dev, prod]
+    lines_of_business:
+      - key: distribution
+        name: "Fund Distribution (wholesale, third-party platforms)"
+      - key: model_portfolios
+        name: "Advisor Model Portfolios & Wealth Tech"
+    sensitivity_notes: []
+
+  - key: institutional
+    name: "Workplace / Institutional Solutions"
+    environments: [dev, prod]
+    lines_of_business:
+      - key: retirement
+        name: "Defined Contribution / 401(k) Recordkeeping"
+      - key: institutional_am
+        name: "Institutional Asset Management & Endowments"
+    sensitivity_notes:
+      - "Participant contribution records include PII requiring masking for general analysts"
+
+  - key: international
+    name: "International Division"
+    environments: [dev, prod]
+    lines_of_business:
+      - key: uk_eu
+        name: "UK / European Retail & Institutional Platforms"
+      - key: apac
+        name: "Asia-Pacific & Superannuation Platforms"
+    sensitivity_notes:
+      - "Environment tiers inferred, not explicitly stated in the reference material -- confirm before treating as final"
+
+shared_departments:
+  - key: platform_it
+    name: "Global IT / Platform Engineering"
+    environments: [dev, stg, prod]
+    scope: [retail, fas, institutional, international]
+    sensitivity_notes: []
+
+  - key: risk_compliance
+    name: "Global Risk & Compliance"
+    environments: [dev, prod]
+    scope: [retail, fas, institutional, international]
+    sensitivity_notes:
+      - "Needs read access to prod data across all business units for regulatory reporting and audit"
+
+  - key: finance_ops
+    name: "Finance Division (FP&A, treasury, fund accounting)"
+    environments: [dev, prod]
+    scope: [retail, fas, institutional, international]
+    sensitivity_notes: []
+
+  - key: hr
+    name: "Global HR (Crew Services)"
+    environments: [prod]
+    scope: []
+    sensitivity_notes:
+      - "No cross-business-unit data scope stated; kept isolated rather than granted broad access by default"
+
+  - key: investments
+    name: "Investment Management Group (quant research, portfolio management)"
+    environments: [prod]
+    scope: [retail, institutional]
+    sensitivity_notes:
+      - "Reference material describes this as needing an air-gapped/isolated compute environment -- a compute-isolation requirement, not just a data-access one; flagged for 6.2's workspace-strategy decision"

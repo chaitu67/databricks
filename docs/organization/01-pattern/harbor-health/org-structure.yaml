@@ -1,0 +1,11 @@
+organization:
+  name: "harbor-health"  # generic placeholder name, not modeling a real company
+  cloud: aws
+  regions: [us-east-1]
+  environment_tiers: [dev]
+
+business_units:
+  - key: pharmacy
+    name: "Pharmacy"
+    environments: [dev]
+    sensitivity_notes: []
