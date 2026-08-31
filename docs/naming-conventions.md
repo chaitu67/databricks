@@ -74,6 +74,39 @@ Regex (prod only, `acl`/`sp` types): `^(acl|sp)_(dev|stg|prod)_[a-z][a-z0-9]*(_[
 Examples: `acl_prod_analytics_reader`, `acl_prod_sales_events_writer`, `sp_prod_analytics_writer`
 (mechanism not yet built), `acl_dev_whatever_owner` (dev, not enforced).
 
+## Workspace names (01-pattern / BU path)
+
+```
+<org>_<bu_or_dept_key>_<env>
+```
+
+- Applies to workspaces created through the `06-organization-setup` 01-pattern (one workspace per
+  business unit/department x environment tier) -- `pattern01_units.auto.tfvars`'s `display_name`
+  and `deployment_name`. Standalone workspaces created outside that pattern (e.g.
+  `workshop-workspace`) aren't org/BU-scoped and don't follow this.
+- `org` -- the org's slug from its `docs/organization/01-pattern/<org-slug>/org-structure.yaml`
+  (e.g. `harbor_health` for the `harbor-health` org).
+- `bu_or_dept_key` -- the unit's `key` from that same `org-structure.yaml`.
+- `env` -- the environment tier this workspace serves (`dev` | `stg` | `prod`).
+
+Example: org `harbor-health`, unit `pharmacy`, tier `dev` -> `harbor_health_pharmacy_dev`.
+
+**Why underscores here despite the hyphen-elsewhere rule above:** a workspace's `display_name` is
+a human-readable label, not a SQL identifier or a DNS-facing value (the actual workspace URL is
+Databricks-auto-assigned, independent of this name -- see `modules/workspace/main.tf`), so the SQL
+constraint that forces underscores on catalogs doesn't apply here. This convention is a deliberate
+choice for consistency with the rest of this project's account-level naming, not a technical
+requirement -- unlike the catalog rule above.
+
+**Renaming a live workspace's `display_name`/`deployment_name` (`workspace_name` on
+`databricks_mws_workspaces`) forces Terraform to destroy and recreate the whole workspace** --
+`workspace_name` is a ForceNew field in this provider, even though the Databricks account API
+itself supports an in-place rename (`databricks account workspaces update <id>
+--workspace-name ...`). Applying this convention to an already-`RUNNING` workspace is a real,
+data-losing replace; get explicit sign-off before merging a PR that renames one, and prefer the
+out-of-band CLI rename + state-refresh reconciliation route over a Terraform-driven
+destroy/recreate wherever the workspace already has anything in it worth keeping.
+
 ## Volume names
 
 ```

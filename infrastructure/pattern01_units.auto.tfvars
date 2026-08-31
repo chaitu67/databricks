@@ -8,8 +8,8 @@
 pattern01_units = {
   "pharmacy_dev" = {
     workspace = {
-      display_name              = "pharmacy-dev"
-      deployment_name           = "pharmacy-dev"
+      display_name              = "harbor_health_pharmacy_dev"
+      deployment_name           = "harbor_health_pharmacy_dev"
       aws_region                = "us-east-1"
       root_bucket               = "pharmacy-dev-dbfs-root-6cf95bdd"
       root_bucket_force_destroy = false

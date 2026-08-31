@@ -5,6 +5,8 @@ See [../patterns.md](../patterns.md) for the pattern registry this belongs to.
 ## Shape
 
 - One Databricks workspace per business unit / shared department × environment tier it needs.
+  Workspace name: `<org>_<bu_or_dept_key>_<env>` (naming-conventions.md `Workspace names`
+  section).
 - One Unity Catalog catalog per line of business, living inside its owning unit's workspace.
   Catalog name: `<env>_<bu_or_dept_key>_<lob_key>` (naming-conventions.md `domain`/`subdomain`).
   A unit with no LOB split gets one catalog per environment tier (domain only, no subdomain).
