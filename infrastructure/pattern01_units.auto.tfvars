@@ -20,4 +20,18 @@ pattern01_units = {
     }
     catalogs = {}
   }
+  "retail_dev" = {
+    workspace = {
+      display_name              = "retail-dev"
+      deployment_name           = "retail-dev"
+      aws_region                = "us-east-1"
+      root_bucket               = "retail-dev-dbfs-root-3f2a9c17"
+      root_bucket_force_destroy = false
+      cross_account_role_name   = "databricks-retail-dev-crossaccount"
+      pricing_tier              = "PREMIUM"
+      admin_emails              = ["datagaiinc@gmail.com"]
+      host                      = null
+    }
+    catalogs = {}
+  }
 }
