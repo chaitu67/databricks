@@ -24,9 +24,11 @@ validated (no "Item 0" engineering prerequisite blocks anything here).
 
 ### retail
 
-- [ ] Workspace `retail-dev` (`add-pattern01-unit.sh retail_dev`).
-  - [ ] Catalog `dev_retail_brokerage` + groups + grants.
-  - [ ] Catalog `dev_retail_advisory` + groups + grants.
+- [x] Workspace `retail-dev` (`add-pattern01-unit.sh retail_dev`). PR:
+      https://github.com/chaitu67/databricks/pull/15 (workspace-only, awaiting review/merge/apply).
+  - [ ] Catalog `dev_retail_brokerage` + groups + grants. Waiting on the workspace above merging,
+        applying, and reporting `RUNNING` (via `08-lob-setup`, once that's confirmed).
+  - [ ] Catalog `dev_retail_advisory` + groups + grants. Same dependency.
   - **Stop point**: review both catalogs' plan/apply before `retail-prod`.
 - [ ] Workspace `retail-prod` (`add-pattern01-unit.sh retail_prod`). Depends on: `retail-dev`
       reviewed.
