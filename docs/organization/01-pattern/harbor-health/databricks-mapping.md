@@ -20,9 +20,9 @@ prerequisite blocks this.
 **1 workspace** — `pharmacy` has only `dev` in scope (`org-structure.yaml`), so there is exactly
 one (unit × environment) pair.
 
-| Unit | Environments | Workspace (`unit_key-env` display / `unit_key_env` Terraform) |
+| Unit | Environments | Workspace (`<org>_<bu>_<env>`, `naming-conventions.md`) |
 |---|---|---|
-| pharmacy | dev | `pharmacy-dev` |
+| pharmacy | dev | `harbor_health_pharmacy_dev` |
 
 Deploys to **us-east-1** — `org-structure.yaml` scopes the whole org to that single region (no
 `environment_regions` map needed, per `01-pattern`'s rule for single-region orgs). No `dr` block
