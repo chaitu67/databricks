@@ -8,17 +8,4 @@
 # all "dev" (matching the analytics catalog's own environment = "dev"), so the naming
 # pattern isn't enforced here -- the acl_dev_analytics_<role> names are still used
 # voluntarily, for consistency with the convention.
-groups = {
-  "acl_dev_analytics_reader" = {
-    environment   = "dev"
-    member_emails = ["datagaiinc@gmail.com"]
-  }
-  "acl_dev_analytics_writer" = {
-    environment   = "dev"
-    member_emails = ["datagaiinc@gmail.com"]
-  }
-  "acl_dev_analytics_owner" = {
-    environment   = "dev"
-    member_emails = ["datagaiinc@gmail.com"]
-  }
-}
+groups = {}
