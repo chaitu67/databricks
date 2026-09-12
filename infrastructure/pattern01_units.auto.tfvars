@@ -5,19 +5,4 @@
 # workspace.host null and catalogs {} -- host is only knowable once the workspace is actually
 # created and RUNNING (see 6.4-deploy-organization's "two-phase reality"); catalogs follow in a
 # second PR once that's confirmed.
-pattern01_units = {
-  "pharmacy_dev" = {
-    workspace = {
-      display_name              = "harbor_health_pharmacy_dev"
-      deployment_name           = "harbor_health_pharmacy_dev"
-      aws_region                = "us-east-1"
-      root_bucket               = "pharmacy-dev-dbfs-root-6cf95bdd"
-      root_bucket_force_destroy = true
-      cross_account_role_name   = "databricks-pharmacy-dev-crossaccount"
-      pricing_tier              = "PREMIUM"
-      admin_emails              = ["datagaiinc@gmail.com"]
-      host                      = null
-    }
-    catalogs = {}
-  }
-}
+pattern01_units = {}
