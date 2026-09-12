@@ -14,7 +14,7 @@ catalogs = {
     environment                  = "dev"
     comment                      = "General-purpose analytics catalog"
     bucket_name                  = "analytics-uc-storage-22fb6946"
-    bucket_force_destroy         = false
+    bucket_force_destroy         = true
     storage_credential_role_name = "databricks-uc-analytics-storage"
     schemas                      = ["bronze", "silver", "gold"]
   }
