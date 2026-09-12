@@ -6,12 +6,4 @@
 # EXTERNAL entries with storage_location left unset default (in volumes.tf) to a
 # subpath under their own catalog's already-registered external location -- no new
 # bucket/IAM role/external location per volume.
-volumes = {
-  "analytics-bronze-raw-files" = {
-    catalog     = "analytics"
-    schema      = "bronze"
-    name        = "raw_files"
-    volume_type = "EXTERNAL"
-    comment     = "External landing volume for raw files dropped into the bronze schema"
-  }
-}
+volumes = {}

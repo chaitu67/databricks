@@ -6,23 +6,4 @@
 # Catalog-level (schema = null): USE_CATALOG/USE_SCHEMA + SELECT (reader), + MODIFY +
 # CREATE_TABLE + CREATE_SCHEMA (writer), or ALL_PRIVILEGES (owner) -- applies to the whole
 # analytics catalog, cascading to every current and future schema/table within it.
-catalog_grants = {
-  "analytics-catalog-level" = {
-    catalog = "analytics"
-    schema  = null
-    grants = [
-      {
-        group      = "acl_dev_analytics_reader"
-        privileges = ["USE_CATALOG", "USE_SCHEMA", "SELECT"]
-      },
-      {
-        group      = "acl_dev_analytics_writer"
-        privileges = ["USE_CATALOG", "USE_SCHEMA", "SELECT", "MODIFY", "CREATE_TABLE", "CREATE_SCHEMA"]
-      },
-      {
-        group      = "acl_dev_analytics_owner"
-        privileges = ["ALL_PRIVILEGES"]
-      }
-    ]
-  }
-}
+catalog_grants = {}
