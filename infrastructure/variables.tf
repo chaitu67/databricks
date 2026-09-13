@@ -56,6 +56,17 @@ variable "workspaces" {
   default = {}
 }
 
+variable "serverless_workspaces" {
+  description = "Map of serverless-only Databricks-on-AWS workspaces to create, keyed by a short slug (the module instance key). compute_mode = SERVERLESS -- Databricks runs all compute in its own compute plane and manages default storage itself, so no cross-account IAM role, root S3 bucket, or VPC gets created in this AWS account (unlike var.workspaces' classic, Databricks-managed-VPC workspaces -- see modules/serverless_workspace vs modules/workspace). Values come from the committed serverless_workspaces.auto.tfvars -- add an entry there to provision a new serverless workspace; no CI/workflow changes needed."
+  type = map(object({
+    workspace_name = string
+    aws_region     = optional(string)
+    pricing_tier   = optional(string, "PREMIUM")
+    admin_emails   = optional(list(string), [])
+  }))
+  default = {}
+}
+
 variable "catalogs" {
   description = "Map of Unity Catalog catalogs to create, keyed by a short slug (the catalog name and the module instance key). Values come from the committed catalogs.auto.tfvars -- add an entry there to provision a new catalog; no CI/workflow changes needed. Each catalog gets its own dedicated S3 bucket + IAM role + storage credential + external location. See docs/naming-conventions.md: for environment = \"prod\" entries, the map key must match <env>_<domain>[_<subdomain>] (e.g. prod_analytics) -- dev/stg keys are unrestricted."
   type = map(object({

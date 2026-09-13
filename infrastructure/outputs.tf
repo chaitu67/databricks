@@ -12,6 +12,16 @@ output "workspace_statuses" {
   value       = { for k, m in module.workspace : k => m.workspace_status }
 }
 
+output "serverless_workspace_urls" {
+  description = "Map of serverless workspace slug -> workspace URL, for every entry in var.serverless_workspaces."
+  value       = { for k, m in module.serverless_workspace : k => m.workspace_url }
+}
+
+output "serverless_workspace_statuses" {
+  description = "Map of serverless workspace slug -> workspace_status, for every entry in var.serverless_workspaces."
+  value       = { for k, m in module.serverless_workspace : k => m.workspace_status }
+}
+
 output "catalog_names" {
   description = "Map of catalog slug -> catalog name, for every entry in var.catalogs."
   value       = { for k, m in module.catalog : k => m.catalog_name }
